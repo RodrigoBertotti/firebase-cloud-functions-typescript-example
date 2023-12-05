@@ -18,8 +18,8 @@ export function validateUserPassword(password:string) {
 }
 
 export function validateUserRole(role: string) {
-    if(role != 'storeOwner' && role != 'buyer')
-        throw new HttpResponseError(400, 'BAD_REQUEST', 'Invalid "role", neither "storeOwner" or "buyer"');
+    if(role != 'storeOwner' && role != 'buyer' && role != "admin")
+        throw new HttpResponseError(400, 'BAD_REQUEST', 'Invalid "role", neither "storeOwner", "buyer" or "admin"');
 }
 
 export function validateUserBirthDate(birthDateMillisecondsSinceEpoch:number) {

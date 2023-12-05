@@ -1,5 +1,4 @@
-import {UserRole} from "../index";
-
+import {UserRole} from "../../index";
 
 export class User {
     constructor(

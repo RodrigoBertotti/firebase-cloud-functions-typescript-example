@@ -1,6 +1,9 @@
 import {DecodedIdToken, UserRecord} from "firebase-admin/lib/auth";
-import {MyClaims} from "../index";
+import {MyClaims,} from "../../index";
 
+export type Claims = {
+    [claim in MyClaims]: boolean;
+};
 
 declare global {
     namespace Express {
@@ -17,9 +20,7 @@ declare global {
             /**
              * Refers to the claims from the user that is performing the request,
              * if the user is authenticated with Firebase, this object also includes the claims from `auth.claims` */
-            claims?: {
-                [MyClaims]: true | undefined,
-            }
+            claims?: Claims
         }
     }
 }

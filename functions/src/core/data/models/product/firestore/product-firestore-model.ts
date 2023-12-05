@@ -2,6 +2,7 @@ import {Product} from "../../../product";
 import {firestore} from "firebase-admin";
 import FieldValue = firestore.FieldValue;
 import Timestamp = firestore.Timestamp;
+import DocumentData = firestore.DocumentData;
 
 
 export class ProductFirestoreModel extends Product {
@@ -22,7 +23,7 @@ export class ProductFirestoreModel extends Product {
         return new ProductFirestoreModel('','','',0,0,'', new Date());
     }
 
-    toDocumentData(productId?: string, createdAt?: FirebaseFirestore.Timestamp| FieldValue) {
+    toDocumentData(productId?: string, createdAt?: Timestamp| FieldValue) {
         return {
             [ProductFirestoreModel.kProductId]: productId ?? this.productId,
             [ProductFirestoreModel.kCreatedAt]: createdAt ?? this.createdAt,
@@ -34,7 +35,7 @@ export class ProductFirestoreModel extends Product {
         }
     }
 
-    static fromDocumentData(data: FirebaseFirestore.DocumentData) {
+    static fromDocumentData(data: DocumentData) {
         return new ProductFirestoreModel(
             data[ProductFirestoreModel.kProductId],
             data[ProductFirestoreModel.kStoreOwnerUid],

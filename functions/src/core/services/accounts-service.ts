@@ -17,7 +17,8 @@ class AccountsService {
             const user = userInput.copyWith({ uid: createUserRes.uid });
             await admin.auth().setCustomUserClaims(user.uid, {
                 storeOwner: user.role == 'storeOwner', //true or false
-                buyer: user.role == 'buyer' //true or false
+                buyer: user.role == 'buyer', //true or false
+                admin: user.role == 'admin', //true or false
             });
             const documentData = UserFirestoreModel.fromEntity(user).toDocumentData();
             await admin.firestore().collection("users").doc(user.uid).set(documentData);

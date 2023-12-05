@@ -1,15 +1,23 @@
 {
 	"info": {
-		"_postman_id": "2ec80f17-9a24-4687-8eca-fabffa02bd20",
+		"_postman_id": "300bce4c-3954-4a23-ae4f-0154dcaa8a22",
 		"name": "api-example-firebase-admin-nodejs",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25702305"
 	},
 	"item": [
 		{
 			"name": "1. Create Account",
 			"request": {
 				"auth": {
-					"type": "noauth"
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{idToken}}",
+							"type": "string"
+						}
+					]
 				},
 				"method": "POST",
 				"header": [],
@@ -23,15 +31,10 @@
 					}
 				},
 				"url": {
-					"raw": "http://192.168.0.8:3000/account",
-					"protocol": "http",
+					"raw": "{{api}}/account",
 					"host": [
-						"192",
-						"168",
-						"0",
-						"31"
+						"{{api}}"
 					],
-					"port": "3000",
 					"path": [
 						"account"
 					]
@@ -82,14 +85,50 @@
 			"response": []
 		},
 		{
-			"name": "3. Create Product",
+			"name": "Create Admin Account",
 			"request": {
 				"auth": {
 					"type": "bearer",
 					"bearer": [
 						{
 							"key": "token",
-							"value": "<idToken>",
+							"value": "{{idToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\":\"Rodrigo\",\n    \"role\":\"admin\",\n    \"email\": \"rodrigo+admin@wisetap.com\",\n    \"password\": \"123456\",\n    \"birthDateMillisecondsSinceEpoch\": 812469600000,\n    \"adminKey\": \"aSecretAdminKey123\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api}}/account",
+					"host": [
+						"{{api}}"
+					],
+					"path": [
+						"account"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Product",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{idToken}}",
 							"type": "string"
 						}
 					]
@@ -106,15 +145,10 @@
 					}
 				},
 				"url": {
-					"raw": "http://192.168.0.8:3000/product",
-					"protocol": "http",
+					"raw": "{{api}}/product",
 					"host": [
-						"192",
-						"168",
-						"0",
-						"31"
+						"{{api}}"
 					],
-					"port": "3000",
 					"path": [
 						"product"
 					]
@@ -123,7 +157,7 @@
 			"response": []
 		},
 		{
-			"name": "4. Get All Products Public",
+			"name": "Get All Products Public",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -133,7 +167,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "<idToken>",
+							"value": "{{idToken}}",
 							"type": "string"
 						}
 					]
@@ -150,15 +184,10 @@
 					}
 				},
 				"url": {
-					"raw": "http://192.168.0.8:3000/all-products-public",
-					"protocol": "http",
+					"raw": "{{api}}/all-products-public",
 					"host": [
-						"192",
-						"168",
-						"0",
-						"31"
+						"{{api}}"
 					],
-					"port": "3000",
 					"path": [
 						"all-products-public"
 					]
@@ -167,7 +196,7 @@
 			"response": []
 		},
 		{
-			"name": "5. Get Public Product by ID",
+			"name": "Get Public Product by ID",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -177,7 +206,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "<idToken>",
+							"value": "{{idToken}}",
 							"type": "string"
 						}
 					]
@@ -194,15 +223,10 @@
 					}
 				},
 				"url": {
-					"raw": "http://192.168.0.8:3000/product/:productId",
-					"protocol": "http",
+					"raw": "{{api}}/product/:productId",
 					"host": [
-						"192",
-						"168",
-						"0",
-						"31"
+						"{{api}}"
 					],
-					"port": "3000",
 					"path": [
 						"product",
 						":productId"
@@ -218,7 +242,7 @@
 			"response": []
 		},
 		{
-			"name": "6. Get Full Product by ID",
+			"name": "Get Full Product by ID",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -228,7 +252,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "<idToken>",
+							"value": "{{idToken}}",
 							"type": "string"
 						}
 					]
@@ -245,15 +269,10 @@
 					}
 				},
 				"url": {
-					"raw": "http://192.168.0.8:3000/product/:productId/full-details",
-					"protocol": "http",
+					"raw": "{{api}}/product/:productId/full-details",
 					"host": [
-						"192",
-						"168",
-						"0",
-						"31"
+						"{{api}}"
 					],
-					"port": "3000",
 					"path": [
 						"product",
 						":productId",
@@ -270,14 +289,14 @@
 			"response": []
 		},
 		{
-			"name": "7. Update Product",
+			"name": "Update Product",
 			"request": {
 				"auth": {
 					"type": "bearer",
 					"bearer": [
 						{
 							"key": "token",
-							"value": "<idToken>",
+							"value": "{{idToken}}",
 							"type": "string"
 						}
 					]
@@ -294,15 +313,10 @@
 					}
 				},
 				"url": {
-					"raw": "http://192.168.0.8:3000/product/:productId",
-					"protocol": "http",
+					"raw": "{{api}}/product/:productId",
 					"host": [
-						"192",
-						"168",
-						"0",
-						"31"
+						"{{api}}"
 					],
-					"port": "3000",
 					"path": [
 						"product",
 						":productId"
@@ -316,6 +330,77 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Get DB Changes (ADMIN)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{idToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api}}/db-changes",
+					"host": [
+						"{{api}}"
+					],
+					"path": [
+						"db-changes"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api",
+			"value": "make sure the URL ends with /api",
+			"type": "string"
+		},
+		{
+			"key": "idToken",
+			"value": "<idToken>",
+			"type": "string"
 		}
 	]
 }

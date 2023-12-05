@@ -1,5 +1,5 @@
 import {Request, Response, NextFunction} from "express";
-import {verifyValidFirebaseUidTokenInterceptor} from "./verify-valid-firebase-uid-token-interceptor";
+import {verifyIdTokenInterceptor} from "./verify-idtoken-interceptor";
 import bodyParser from "body-parser";
 
 
@@ -9,8 +9,8 @@ export const interceptors:Array<(req:Request,res:Response,next:NextFunction) => 
 
     // Setting default values
     (req, res, next) => {
-        req.claims = {};
+        req.claims = {} as any;
         next();
     },
-    verifyValidFirebaseUidTokenInterceptor,
+    verifyIdTokenInterceptor,
 ];

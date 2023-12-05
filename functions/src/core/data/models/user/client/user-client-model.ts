@@ -13,15 +13,18 @@ export class UserClientModel extends User {
     static kName = 'name';
     static kRole = 'role';
     static kEmail = 'email';
-    static kPassword = 'password';
     static kBirthDateMillisecondsSinceEpoch = 'birthDateMillisecondsSinceEpoch';
+
+    /** On request only: */
+    static kPassword = 'password';
+    static kAdminKey = 'adminKey';
 
     static fromEntity(entity: User): UserClientModel {
         return Object.assign(UserClientModel.empty(), entity);
     }
 
     static empty() : UserClientModel {
-        return new UserClientModel('','','' as any,'', new Date());
+        return new UserClientModel('','','' as any,'', new Date(),);
     }
 
     toBody() {
@@ -34,7 +37,7 @@ export class UserClientModel extends User {
         };
     }
 
-    static fromBody(body: any): UserClientModel & { password: string } {
+    static fromBody(body: any): UserClientModel & { password: string, adminKey?:string } {
         validateUserName(body[UserClientModel.kName]);
         validateUserEmail(body[UserClientModel.kEmail]);
         validateUserRole(body[UserClientModel.kRole]);
@@ -47,9 +50,12 @@ export class UserClientModel extends User {
                 body[UserClientModel.kName],
                 body[UserClientModel.kRole],
                 body[UserClientModel.kEmail],
-                new Date(body[UserClientModel.kBirthDateMillisecondsSinceEpoch]),
+                new Date(body[UserClientModel.kBirthDateMillisecondsSinceEpoch])
             ),
-            {  password: body[UserClientModel.kPassword], }
+            {
+                password: body[UserClientModel.kPassword],
+                adminKey: body[UserClientModel.kAdminKey],
+            }
         )
     }
 

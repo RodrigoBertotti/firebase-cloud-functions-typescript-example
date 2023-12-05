@@ -1,77 +1,84 @@
-# api-example-firebase-admin-nodejs
+# firebase-cloud-functions-typescript-example
 
-A Node.js REST API example that uses Firebase Admin, built with Express and Typescript that can be used as template for the creation of new servers.
+A Node.js REST API example with Google Cloud Functions for Firebase,
+built with TypeScript, Express, Firebase Authentication, Firebase Admin SDK, and Firestore.
+It also handles Event Triggers (2nd gen) so all your code is organized.
+This project fits well to be used as a template for the creation of new servers.
 
 The main aspects of this sample are:
 
-- A project structure that fits well for new API projects that uses **Firebase Authentication** and **Firestore**
-- Access Control: Restricting routes access with custom claims and checking nuances
-- Reject a request outside the controller easily by throwing `new HttpResponseError(status, codeString, message)`
-- Logs: **winston** module is preconfigured to write `.log` files
+-  **An API HTTP Trigger:**
+ 
+   - A well-organized API under the `api` folder
+   - Access Control: Reject user access by simply choosing what user roles can access a specific path or easily check the claims with a custom `request` object in the Request Handler
+   - Reject a request anywhere by throwing `new HttpResponseError(status, codeString, message)`
+- **Events Triggers (2nd gen):** 
+   - A well-organized Events Triggers under the `event-triggers` folder
+
+- Shared components between API and Event Triggers are under the `core` folder
+
+## About this example
+
+This example is a good start if you are building a 
+Firebase Cloud Functions project.
+
+### About the 2nd gen event triggers example
+
+Every time a user or product is created, or a product is updated,
+a new record is created in
+the `db-changes` Firestore Collection that only admins can access,
+the code for these triggers is inside the `event-triggers` folder.
+
+The triggers are `onUserCreated`, `onProductCreated`, and `onProductUpdated`.
+
+### About the `api` HTTP trigger
+
+There are three roles: `storeOwner`, `buyer` and `admin`.
+Anyone can create an account, but an `adminKey` is required to create 
+a user with `admin` role.
+
+#### What each user can do
+
+Store Owners:
+  - ✅ Create products
+  - ✅ List public products data
+  - ✅ Get full data of his own product
+  - ❌ Get full data of other store owners' product
+  - ❌ List records of changes made inside the DB, like "Product Blouse has been updated"
+
+Buyers:
+
+- ✅ List public products data
+- ❌ Create products
+- ❌ Get full data of a product
+- ❌ List records of changes made inside the DB, like "Product Blouse has been updated"
+
+Admins: 
+
+- ✅ Create products
+- ✅ List public products data
+- ✅ Get full data of ANY product
+- ✅ List records of changes made inside the DB, like "Product Blouse has been updated"
 
 ## Getting Started
 
-### Step 1 -Configure the Firebase Console
-
-In the Firebase Console
+In the Firebase Console:
  
-Go to Build > Authentication > Get Started > Sign-in method > Email/Password and enable Email/Password and save it.
+1. Go to Build > Authentication > Get Started > Sign-in method > Email/Password and enable Email/Password and save it.
 
-Also go to Build > Firestore Database > Create database. You can choose the option `Start in test mode`.
+2. Also go to Build > Firestore Database > Create database. You can choose the option `Start in test mode`
 
-### Step 2 - Generate your `firebase-credentials.json` file
+### Deploying
 
-1) Go to your Firebase Project 
-2) Click on the engine icon (on right of "Project Overview")
-3) "Project Settings"
-4) "Service Accounts"
-5) "Firebase Admin SDK" and make sure the "Node.js" option is selected
-6) Click on "Generate new private key". Rename the downloaded file to `firebase-credentials.json` and move it to inside the
-`environment` folder. 
+Go to the `functions` folder and run `npm install`
+to install the dependencies. After that,
+go back to the root folder (`cd ..`) and run:
 
-⚠️ Keep `firebase-credentials.json` and `environment.ts` local,
-don't commit these files, keep both on `.gitignore`
+- `npm install -g firebase-tools` to install the Firebase CLI
+- `firebase use --add` and select your Firebase project, add any alias you prefer
+- And finally, run `firebase deploy`
 
-As any Firebase server, the API has administrative privileges,
-that means the API has full permission to perform changes on the Firestore Database (and
-other Firebase Resources) regardless of how the Firestore Security Rules are configured.
-
-### Step 3 - To test your server locally:
-
-This command will start and restart your server as code changes are made,
-do not use on production
-
-    npm run dev
-
-Let's run `npm install` to install the dependencies and `npm run dev` 
-to start your server locally on port 3000.
-
-#### Other commands for the production environment
-
-#### To build your server:
-
-    npm run build
-
-#### To start your server
-
-    npm run start
-
-### Step 4 - Use Postman to test it
-
-1. In the Firebase Console > Go to Project Overview and Click on the **Web** platform to Add a new Platform
-
-2. Add a Nickname like "Postman" and click on Register App
-
-3. Copy the **apiKey** field
-
-4. Import the **[postman_collection.json](postman_collection.json)** file to your Postman
-
-5. Test creating an account first, after that, go to the Login request 
-example and pass the `apiKey` as query parameter
-
-6. Copy the `idToken` and pass it as header for the other requests, the header name is `Authorization`.
-
-## Authentication
+## API Authentication
 
 Firebase Authentication is used to verify
 if the client is authenticated on Firebase Authentication,
@@ -86,7 +93,7 @@ It can be generated by the client side only.
 
 #### Option 1: Generating ID Token with Postman:
 
-Follow the previous instructions on [Step 4 - Use Postman to test it](#step-4---use-postman-to-test-it) and pass
+Follow the previous instructions on [Use Postman to test it](#using-postman-to-test-it) and pass
 it as `Authorization` header value in the format `Bearer <idToken>`
 
 #### Option 2: Generating ID Token with a Flutter Client:
@@ -97,9 +104,64 @@ final idToken = await FirebaseAuth.instance.currentUser!.getIdToken();
 
 #### Option 3: Generating ID Token with a Web Client:
 ```javascript
-const idToken = await getAuth(firebaseApp).currentUser?.getIdToken();
+const idToken = await getAuth(firebaseApp).currentUser.getIdToken();
 // use idToken as `Authorization` header value in the format "Bearer <idToken>"
 ```
+
+## Testing
+
+### Option 1: Testing with Remote DB
+To make tests remotely, check what is your **remote** functions URL: in the Firebase Console go
+to **Functions** > and check the `api` url, it ends with `.cloudfunctions.net/api`.
+
+### Option 2: Testing Locally with a local emulator
+
+In case you want to make tests locally using the Firebase Emulator,
+you can run `npm run emulator` inside the `functions` folder.
+
+⚠️ Changes in the local emulator
+**won't affect the remote db.**
+
+Open the Emulator UI
+on http://127.0.0.1:3005 > **Functions emulator** > and on the first lines
+check the `http function initialized...` log, it shows your Local URL, it ends with `/api`.
+
+### Using Postman to test it
+
+**1.** Import the **[postman_collection.json](postman_collection.json)** file to your Postman
+
+**2.** Right-click on the Postman collection you previously imported,
+   click on **Edit** > **Variables** and on **api** replace the **Current Value** with
+   your API URL. 
+
+Make sure the URL **ends with** `/api` and remember that if you use the local
+   emulator URL it won't affect the remote db.
+
+   If you are testing using the local emulator, it will look something like: `http://127.0.0.1:<port>/<your-project-id>/<region>/api`
+
+   But if you are testing using the remote db, it will look like: `https://<your-project-id>.cloudfunctions.net/api`
+
+**3.** Create an account on the `1. Create Account` Postman Request
+
+**4.** Follow the login steps to get an ID Token on Postman:
+   
+   *It's better to use a library of Firebase Authentication on the Client Side
+   to get the ID Token, but let's use this method for testing because we are using Postman only*
+
+- **4.1.** In the Firebase Console > Go to Project Overview and Add a new **Web** platform
+
+- **4.2.** Add a Nickname like "Postman" and click on Register App
+
+- **4.3.** Copy only the **apiKey** field inside the `firebaseConfig` object
+
+-  **4.4** Let's get the Firebase Authentication Token, on Postman, go to `2. Login on Google APIS` request
+   example and pass the `apiKey` as Query Param, edit the body with your email and password and click on **Send**, 
+you will obtain an `idToken` as the response.
+
+-  **4.5** For the other requests, the `idToken` should be set in the `Authorization` header (type **Bearer**).
+   Let's set it as Postman variable too, so right-click on the Postman collection 
+   **Edit** > **Variables** and on **idToken** replace the **Current Value** with
+   the user **idToken** you previously obtained.
 
 ## Access Control
 
@@ -112,7 +174,8 @@ This can be done in the server like below:
 ```javascript
 await admin.auth().setCustomUserClaims(user.uid, {
     storeOwner: true,
-    buyer: false
+    buyer: false,
+    admin: false
 });
 ```
 ### Configuring the routes
@@ -132,7 +195,7 @@ have access to the `/product/:productId/full-details` path.
 
 Is this enough? Not always, so let's check the next section [Errors and permissions](#errors-and-permissions).
 
-## Errors and permissions
+## API Errors and permissions
 
 You can easily send an HTTP response with code between 400 and 500 to the client
 by simply throwing a `new HttpResponseError(...)` on your controller, service or repository,
@@ -154,29 +217,32 @@ if (product.storeOwnerUid != req.auth!.uid) {
     throw new HttpResponseError(
         403, 
         'FORBIDDEN', 
-        `Even though you are a store owner,
-        you are a owner of another store,
-        so you can't see full details of this product`
+        `You aren't the correct storeOwner`
     );
 }
 ```
 
 ### 🚫 Permission errors
 
-- #### "Only storeOwner can access"
-Means you are not logged with a `buyer` claim rather
+- #### "Only storeOwner can perform this operation"
+Means you are not logged in with a user that has the `buyer` claim rather
 than with a user that contains the  `storeOwner` claim.
 
 - #### "You aren't the correct storeOwner"
-Means you are logged with the correct claim, but you are trying to read others storeOwner's data.
+Means you are logged in with the correct claim, but you are trying to read other storeOwner's data.
+
+- #### "Only admin can perform this operation"
+Means that this operation requires to be logged with
+a user that has the `admin` claim, but the current user hasn't.
 
 - #### "Requires authentication"
+If you forget to add the Authentication header
 
 ## Authentication fields on Express Request Handler
 
 This project adds 3 new fields to the request object on the 
 express request handler, 
-you can also customize this on `src/@types/express.d.ts` TypeScript file.
+you can also customize this on `src/api/@types/express.d.ts` TypeScript file.
 
 ### `req.authenticated` 
 type: `boolean`
@@ -194,42 +260,6 @@ If authenticated: Contains user data of Firebase Authentication.
 type: [DecodedIdToken](https://firebase.google.com/docs/reference/admin/node/firebase-admin.auth.decodedidtoken) | `null`
 
 If authenticated: Contains token data of Firebase Authentication.
-
-## Logs
-
-You can save logs into a file by importing these functions of the `src/utils/logger.ts` file
-and using like:
-```javascript
-log("this is a info", "info");
-logDebug("this is a debug");
-logInfo("this is a info");
-logWarn("this is a warn");
-logError("this is a error");
-```
-By default, a `logs` folder will be generated
-aside this project folder, in this structure:
-
-    - /api-example-firebase-nodejs
-    --- /node_modules/*
-    --- /src/*
-    --- (and more)
-
-    - /logs
-    --- /api-example-firebase-nodejs
-    ------ 2022-8-21.log
-    ------ 2022-8-22.log
-    ------ 2022-8-23.log
-    ------ (and more)
-
-Each `.log` file contains the logs of the respective day.
-
-You can also go to `src/utils/logger.ts` and check `logsFilename` and `logsPathAndFilename` fields
-to change the default path and filename so the logs can be saved with a different filename and
-in a different location.
-
-By default, regardless of the log level, all logs will be saved in the same file,
-you can also change this behavior on the `winston.createLogger(transports: ...)` line of 
-the `src/utils/logger.ts` file. 
 
 ## Getting in touch
 

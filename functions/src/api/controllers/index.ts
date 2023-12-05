@@ -1,8 +1,7 @@
 import {Express, NextFunction, Request, RequestHandler, Response} from "express";
 import {MyClaims} from "../../index";
-import {ErrorResponseBody, HttpResponseError} from "../../utils/http-response-error";
-import {logError, logWarn} from "../../utils/logger";
-
+import {ErrorResponseBody, HttpResponseError} from "../../core/utils/http-response-error";
+import {logger} from "firebase-functions";
 
 export interface Controller {
     initialize(httpServer: HttpServer): void;
@@ -40,7 +39,7 @@ export class HttpServer {
                             return;
                         }
                     }
-                    throw new HttpResponseError(403, 'FORBIDDEN', !req.auth ? `Requires authentication` :`Only ${claims.toString().replace(/,/g, ', ')} can access`);
+                    throw new HttpResponseError(403, 'FORBIDDEN', !req.auth ? `Requires authentication` :`Only ${claims.toString().replace(/,/g, ', ')} can perform this operation`);
                 }
             };
             try {
@@ -51,11 +50,11 @@ export class HttpServer {
                 const userInfo = !req.auth?.uid?.length ? '' : ` uid: ${req.auth.uid}`;
 
                 if(e instanceof HttpResponseError){
-                    const errorMessage = `[${req.method.toUpperCase()}] ${req.path}${userInfo} - ${e.internalLog}`;
+                    const errorMessage = `[${req.method.toUpperCase()}] ${req.path}${userInfo}`;
                     if (e.status >= 500) {
-                        logError(errorMessage);
+                        logger.error(errorMessage);
                     } else {
-                        logWarn(errorMessage);
+                        logger.warn(errorMessage);
                     }
 
                     res.statusCode = e.status;
@@ -70,8 +69,8 @@ export class HttpServer {
                     return;
                 }
 
-                logError(`[${req.method.toUpperCase()}] ${req.path}${userInfo}`);
-                logError(e.stack);
+                logger.error(`[${req.method.toUpperCase()}] ${req.path}${userInfo}`);
+                logger.error(e.stack);
                 res.statusCode = 500;
                 res.send(
                     new ErrorResponseBody({

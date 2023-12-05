@@ -1,4 +1,7 @@
 import {User} from "../../../user";
+import {firestore} from "firebase-admin";
+import DocumentData = firestore.DocumentData;
+import Timestamp = firestore.Timestamp;
 
 export class UserFirestoreModel extends User {
     static kUid = 'uid';
@@ -13,6 +16,16 @@ export class UserFirestoreModel extends User {
 
     static empty() : UserFirestoreModel {
         return new UserFirestoreModel('','','' as any,'', new Date());
+    }
+
+    static fromDocumentData(data: DocumentData): UserFirestoreModel {
+        return new UserFirestoreModel(
+            data[UserFirestoreModel.kUid],
+            data[UserFirestoreModel.kName],
+            data[UserFirestoreModel.kRole],
+            data[UserFirestoreModel.kEmail],
+            (data[UserFirestoreModel.kBirthDate] as Timestamp).toDate(),
+        );
     }
 
     toDocumentData() {

@@ -2,9 +2,8 @@ import {NextFunction, Request, Response} from "express";
 import * as admin from "firebase-admin";
 import assert from "node:assert";
 import {MyClaims} from "../../index";
-import {ErrorResponseBody} from "../../utils/http-response-error";
-import {logError} from "../../utils/logger";
-
+import {logger} from "firebase-functions";
+import {ErrorResponseBody} from "../../core/utils/http-response-error";
 
 const _idToken = (req:Request) => {
     const authorizationHeaderValue:string | undefined = (req.headers['Authorization']?.length ? req.headers['Authorization'] : req.headers['authorization'])?.toString();
@@ -17,7 +16,7 @@ const _idToken = (req:Request) => {
     return authorizationHeaderValue;
 }
 
-export const verifyValidFirebaseUidTokenInterceptor =  ((req:Request, res:Response, next:NextFunction) => {
+export const verifyIdTokenInterceptor =  ((req:Request, res:Response, next:NextFunction) => {
     const idToken = _idToken(req);
 
     if (!idToken?.length) {
@@ -32,7 +31,7 @@ export const verifyValidFirebaseUidTokenInterceptor =  ((req:Request, res:Respon
     const timeout = setTimeout(() => {
         if(!finished) {
             finished = true;
-            logError(`Invalid Firebase ID Token on 'Authorization' header (TIMEOUT)`);
+            logger.error(`Invalid Firebase ID Token on 'Authorization' header (TIMEOUT)`);
             res.status(401).send(new ErrorResponseBody({
                 status: 401,
                 code: 'UNAUTHORIZED',
@@ -48,7 +47,7 @@ export const verifyValidFirebaseUidTokenInterceptor =  ((req:Request, res:Respon
             req.authenticated = true;
             req.auth = (await admin.auth().getUser(decoded.uid));
             req.token = decoded;
-            req.claims = req.auth!.customClaims ?? {}; // same object reference as Firebase
+            req.claims = req.auth!.customClaims ?? {} as any; // same object reference as Firebase
             req.claims['authenticated' as MyClaims] = true;
 
             assert(req.auth!.customClaims!['authenticated'] == true);
@@ -59,7 +58,7 @@ export const verifyValidFirebaseUidTokenInterceptor =  ((req:Request, res:Respon
         }
         clearTimeout(timeout);
     }, (reason) => {
-        logError(`Invalid Firebase ID Token on 'Authorization' header: ${reason}`);
+        logger.error(`Invalid Firebase ID Token on 'Authorization' header: ${reason}`);
         if(!finished){
             finished = true;
             res.status(401).send(new ErrorResponseBody({
