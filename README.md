@@ -1,4 +1,4 @@
-# firebase-cloud-functions-typescript-example
+# Firebase Cloud Functions TypeScript Example
 
 A Node.js REST API example with Google Cloud Functions for Firebase,
 built with TypeScript, Express, Firebase Authentication, Firebase Admin SDK, and Firestore.
